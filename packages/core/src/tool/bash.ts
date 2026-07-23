@@ -15,6 +15,9 @@ import { ToolRegistry } from "./registry"
 import { Tool } from "./tool"
 import { Tools } from "./tools"
 
+import { Shell } from "../shell"
+import { which } from "../util/which"
+
 export const name = "bash"
 export const DEFAULT_TIMEOUT_MS = 2 * 60 * 1_000
 export const MAX_TIMEOUT_MS = 10 * 60 * 1_000
@@ -46,7 +49,10 @@ const Output = Schema.Struct({
 
 type Output = typeof Output.Type
 
-const defaultShell = () => (process.platform === "win32" ? (process.env.COMSPEC ?? "cmd.exe") : "/bin/sh")
+const defaultShell = () =>
+  process.platform === "win32"
+    ? (process.env.COMSPEC ?? "cmd.exe")
+    : (process.env.SHELL ?? Shell.preferred() ?? which("bash") ?? which("sh") ?? (process.env.PREFIX ? path.join(process.env.PREFIX, "bin", "sh") : "/bin/sh"))
 
 const modelOutput = (output: Output) => {
   const warnings = output.warnings?.length

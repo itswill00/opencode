@@ -99,6 +99,11 @@ else
       fi
     fi
 
+    is_termux=false
+    if [ -n "${TERMUX_VERSION:-}" ] || [ -d "/data/data/com.termux" ] || [[ "${PREFIX:-}" == *"com.termux"* ]]; then
+      is_termux=true
+    fi
+
     combo="$os-$arch"
     case "$combo" in
       linux-x64|linux-arm64|darwin-x64|darwin-arm64|windows-x64)
@@ -108,6 +113,11 @@ else
         exit 1
         ;;
     esac
+
+    if [ "$is_termux" = "true" ]; then
+      echo -e "${ORANGE}Termux environment detected.${NC}"
+      echo -e "${MUTED}Note: Standard Linux binaries target glibc. If the downloaded binary fails to execute, ensure glibc compatibility ('gcompat' or 'proot-distro') or run opencode via Bun/Node.${NC}\n"
+    fi
 
     archive_ext=".zip"
     if [ "$os" = "linux" ]; then

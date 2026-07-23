@@ -7,10 +7,23 @@ const os = require("os")
 
 const forwardedSignals = ["SIGINT", "SIGTERM", "SIGHUP"]
 
+const isTermux = Boolean(
+  process.env.TERMUX_VERSION ||
+    (process.env.PREFIX && process.env.PREFIX.includes("com.termux")) ||
+    fs.existsSync("/data/data/com.termux"),
+)
+
 function run(target) {
   const child = childProcess.spawn(target, process.argv.slice(2), { stdio: "inherit" })
   child.on("error", (error) => {
-    console.error(error.message)
+    if (isTermux) {
+      console.error(
+        `OpenCode binary execution failed on Termux (${error.message}).\n` +
+          `Notice: Termux (Android Bionic) requires running via Node/Bun or proot/gcompat for standard Linux binaries.`,
+      )
+    } else {
+      console.error(error.message)
+    }
     process.exit(1)
   })
   const forwarders = {}

@@ -108,7 +108,17 @@ function win() {
 async function unix() {
   const text = await readFile("/etc/shells", "utf8").catch(() => "")
   if (text) return Array.from(new Set(text.split("\n").filter((line) => line.trim() && !line.startsWith("#"))))
-  return ["/bin/bash", "/bin/zsh", "/bin/sh"]
+  const prefix = process.env.PREFIX ? path.join(process.env.PREFIX, "bin") : undefined
+  const candidates = [
+    which("bash"),
+    which("zsh"),
+    which("sh"),
+    "/bin/bash",
+    "/bin/zsh",
+    "/bin/sh",
+    ...(prefix ? [path.join(prefix, "bash"), path.join(prefix, "zsh"), path.join(prefix, "sh")] : []),
+  ].filter((item): item is string => Boolean(item))
+  return Array.from(new Set(candidates))
 }
 
 function select(file: string | undefined, opts?: { acceptable?: boolean }) {
@@ -133,6 +143,12 @@ function fallback() {
   if (process.platform === "darwin") return "/bin/zsh"
   const bash = which("bash")
   if (bash) return bash
+  const sh = which("sh")
+  if (sh) return sh
+  if (process.env.PREFIX) {
+    const termuxSh = path.join(process.env.PREFIX, "bin", "sh")
+    if (stat(termuxSh)?.isFile()) return termuxSh
+  }
   return "/bin/sh"
 }
 
