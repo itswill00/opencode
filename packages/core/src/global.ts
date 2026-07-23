@@ -8,10 +8,11 @@ import { Flag } from "./flag/flag"
 import { makeGlobalNode } from "./effect/app-node"
 
 const app = "opencode"
-const data = path.join(xdgData!, app)
-const cache = path.join(xdgCache!, app)
-const config = path.join(xdgConfig!, app)
-const state = path.join(xdgState!, app)
+const homeDir = process.env.OPENCODE_TEST_HOME ?? os.homedir()
+const data = path.join(xdgData ?? path.join(homeDir, ".local", "share"), app)
+const cache = path.join(xdgCache ?? path.join(homeDir, ".cache"), app)
+const config = path.join(xdgConfig ?? path.join(homeDir, ".config"), app)
+const state = path.join(xdgState ?? path.join(homeDir, ".local", "state"), app)
 const tmp = path.join(os.tmpdir(), app)
 
 const paths = {

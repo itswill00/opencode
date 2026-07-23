@@ -91,7 +91,14 @@ export namespace RipgrepBinary {
       return Service.of({
         filepath: yield* Effect.cached(
           Effect.gen(function* () {
-            const system = yield* Effect.sync(() => which(process.platform === "win32" ? "rg.exe" : "rg"))
+            const system = yield* Effect.sync(() => {
+              const found = which(process.platform === "win32" ? "rg.exe" : "rg")
+              if (found) return found
+              if (process.env.PREFIX) {
+                const termuxRg = path.join(process.env.PREFIX, "bin", "rg")
+                return termuxRg
+              }
+            })
             if (system && (yield* fs.isFile(system).pipe(Effect.orDie))) return system
 
             const target = path.join(Global.Path.bin, `rg${process.platform === "win32" ? ".exe" : ""}`)
