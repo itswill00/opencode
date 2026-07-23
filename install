@@ -352,6 +352,20 @@ download_and_install() {
 
     mv "$tmp_dir/opencode" "$INSTALL_DIR"
     chmod 755 "${INSTALL_DIR}/opencode"
+    if [ "${is_termux:-false}" = "true" ]; then
+        mv "${INSTALL_DIR}/opencode" "${INSTALL_DIR}/opencode.binary"
+        cat <<'WRAPPER' > "${INSTALL_DIR}/opencode"
+#!/data/data/com.termux/files/usr/bin/sh
+if [ -f "/data/data/com.termux/files/usr/glibc/lib/ld-linux-aarch64.so.1" ]; then
+  exec /data/data/com.termux/files/usr/glibc/lib/ld-linux-aarch64.so.1 "$HOME/.opencode/bin/opencode.binary" "$@"
+elif [ -f "/data/data/com.termux/files/usr/lib/ld-linux-aarch64.so.1" ]; then
+  exec /data/data/com.termux/files/usr/lib/ld-linux-aarch64.so.1 "$HOME/.opencode/bin/opencode.binary" "$@"
+else
+  exec "$HOME/.opencode/bin/opencode.binary" "$@"
+fi
+WRAPPER
+        chmod 755 "${INSTALL_DIR}/opencode"
+    fi
     rm -rf "$tmp_dir"
 }
 
