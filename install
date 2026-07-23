@@ -357,9 +357,9 @@ download_and_install() {
         cat <<'WRAPPER' > "${INSTALL_DIR}/opencode"
 #!/data/data/com.termux/files/usr/bin/sh
 if [ -f "/data/data/com.termux/files/usr/glibc/lib/ld-linux-aarch64.so.1" ]; then
-  exec /data/data/com.termux/files/usr/glibc/lib/ld-linux-aarch64.so.1 "$HOME/.opencode/bin/opencode.binary" "$@"
+  exec /data/data/com.termux/files/usr/glibc/lib/ld-linux-aarch64.so.1 --library-path /data/data/com.termux/files/usr/glibc/lib "$HOME/.opencode/bin/opencode.binary" "$@"
 elif [ -f "/data/data/com.termux/files/usr/lib/ld-linux-aarch64.so.1" ]; then
-  exec /data/data/com.termux/files/usr/lib/ld-linux-aarch64.so.1 "$HOME/.opencode/bin/opencode.binary" "$@"
+  exec /data/data/com.termux/files/usr/lib/ld-linux-aarch64.so.1 --library-path /data/data/com.termux/files/usr/lib "$HOME/.opencode/bin/opencode.binary" "$@"
 else
   exec "$HOME/.opencode/bin/opencode.binary" "$@"
 fi
