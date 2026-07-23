@@ -1730,14 +1730,20 @@ const layer = Layer.effect(
         if (existing) return existing
 
         const customFetch = options["fetch"]
-        const chunkTimeout = options["chunkTimeout"]
-        const headerTimeout = options["headerTimeout"]
+        const chunkTimeout = options["chunkTimeout"] ?? 30_000
+        const headerTimeout = options["headerTimeout"] ?? 60_000
         delete options["chunkTimeout"]
         delete options["headerTimeout"]
 
         options["fetch"] = async (input: any, init?: BunFetchRequestInit) => {
           const fetchFn = customFetch ?? fetch
           const opts = init ?? {}
+          const reqHeaders = new Headers(opts.headers)
+          if (!reqHeaders.has("Connection")) {
+            reqHeaders.set("Connection", "keep-alive")
+          }
+          opts.headers = reqHeaders
+
           const chunkAbortCtl = typeof chunkTimeout === "number" && chunkTimeout > 0 ? new AbortController() : undefined
           const headerTimeoutMs = headerTimeout === false ? undefined : headerTimeout
           const headerTimeoutCtl = typeof headerTimeoutMs === "number" ? timeoutController(headerTimeoutMs) : undefined
