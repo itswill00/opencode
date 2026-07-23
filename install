@@ -353,6 +353,14 @@ download_and_install() {
     mv "$tmp_dir/opencode" "$INSTALL_DIR"
     chmod 755 "${INSTALL_DIR}/opencode"
     if [ "${is_termux:-false}" = "true" ]; then
+        if [ -f "/data/data/com.termux/files/usr/glibc/lib/libc.so" ] && ! [ -L "/data/data/com.termux/files/usr/glibc/lib/libc.so" ]; then
+            cp /data/data/com.termux/files/usr/glibc/lib/libc.so /data/data/com.termux/files/usr/glibc/lib/libc.so.script 2>/dev/null || true
+            ln -sf /data/data/com.termux/files/usr/glibc/lib/libc.so.6 /data/data/com.termux/files/usr/glibc/lib/libc.so 2>/dev/null || true
+        fi
+        if [ -f "/data/data/com.termux/files/usr/glibc/lib/libm.so" ] && ! [ -L "/data/data/com.termux/files/usr/glibc/lib/libm.so" ]; then
+            cp /data/data/com.termux/files/usr/glibc/lib/libm.so /data/data/com.termux/files/usr/glibc/lib/libm.so.script 2>/dev/null || true
+            ln -sf /data/data/com.termux/files/usr/glibc/lib/libm.so.6 /data/data/com.termux/files/usr/glibc/lib/libm.so 2>/dev/null || true
+        fi
         mv "${INSTALL_DIR}/opencode" "${INSTALL_DIR}/opencode.binary"
         cat <<'WRAPPER' > "${INSTALL_DIR}/opencode"
 #!/data/data/com.termux/files/usr/bin/sh
